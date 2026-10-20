@@ -1,0 +1,174 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Web Tugas Interaktif</title>
+    <style>
+        /* --- 1. CSS UNTUK TAMPILAN (LAYOUT) --- */
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f7f6;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        h1 {
+            color: #264760;
+            font-weight: 900; /* Membuat judul ekstra tebal */
+        }
+
+        /* Wadah Kotak Grid untuk Tugas */
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+
+        /* Desain Kartu Tugas */
+        .task-card {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            border-left: 5px solid #007bff;
+        }
+
+        .task-card.selesai {
+            border-left-color: #28a745;
+            background-color: #e8f5e9;
+            text-decoration: line-through;
+            color: #888;
+        }
+
+        .btn-status {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            margin-top: 10px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+ <h1>Daftar Tugas Informatika</h1>
+    <p>Klik tombol pada kartu untuk mengubah status tugas secara interaktif!</p>
+
+    <!-- Input Formulir Baru -->
+    <div style="margin-bottom: 20px; display: flex; gap: 10px; width: 100%; max-width: 800px;">
+        <input type="text" id="input-matkul" placeholder="Nama Mata Kuliah..." style="padding: 10px; flex: 1; border-radius: 4px; border: 1px solid #ccc;">
+        <input type="text" id="input-detail" placeholder="Detail Tugas..." style="padding: 10px; flex: 2; border-radius: 4px; border: 1px solid #ccc;">
+        <button onclick="tambahTugasBaru()" style="background-color: #28a745; color: white; border: none; padding: 10px 20px; border-radius: 4px; font-weight: bold; cursor: pointer;">Tambah</button>
+    </div>
+
+    <!-- Tempat Kartu Tugas Akan Muncul Otomatis (Cukup SATU saja di sini) -->
+    <div class="task-grid" id="tempat-tugas"></div>   
+
+    <!-- --- 2. JAVASCRIPT UNTUK INTERAKTIF --- -->
+    <script>
+        // Data Tugas berbentuk Array of Objects
+        let daftarTugas = [
+            { id: 1, matkul: "Web Programming", detail: "Membuat layout HTML CSS", status: "Belum Selesai" },
+            { id: 2, matkul: "Sistem Operasi", detail: "Belajar perintah dasar Linux", status: "Belum Selesai" },
+            { id: 3, matkul: "Matematika Diskrit", detail: "Mengerjakan tugas Aljabar", status: "Belum Selesai" }
+        ];
+       // Fungsi untuk menambah tugas baru dari inputan layar
+function tambahTugasBaru() {
+    const inputMatkul = document.getElementById("input-matkul");
+    const inputDetail = document.getElementById("input-detail");
+
+    // Validasi agar tidak bisa input text kosong
+    if (inputMatkul.value.trim() === "" || inputDetail.value.trim() === "") {
+        alert("Silakan isi nama matkul dan detail tugasnya dulu ya!");
+        return;
+    }
+
+    // Membuat object tugas baru
+    const tugasBaru = {
+        id: Date.now(), // Menggunakan timestamp agar ID selalu unik
+        matkul: inputMatkul.value,
+        detail: inputDetail.value,
+        status: "Belum Selesai"
+    };
+
+    // Memasukkan object baru ke dalam Array
+    daftarTugas.push(tugasBaru);
+
+    // Kosongkan kembali kotak input setelah tombol diklik
+    inputMatkul.value = "";
+    inputDetail.value = "";
+
+    // Gambar ulang halaman webnya agar langsung muncul
+    tampilkanTugas();
+} 
+
+        // Fungsi untuk menggambar kartu tugas ke dalam HTML
+        function tampilkanTugas() {
+            const wadah = document.getElementById("tempat-tugas");
+            wadah.innerHTML = ""; // Bersihkan isi wadah sebelum digambar ulang
+
+            daftarTugas.forEach((tugas) => {
+                // Membuat elemen kotak kartu baru
+                const kartu = document.createElement("div");
+                
+                // Jika statusnya selesai, tambahkan gaya CSS khusus
+                kartu.className = `task-card ${tugas.status === 'Selesai' ? 'selesai' : ''}`;
+
+                // Isi tulisan di dalam kartu
+                // Tambahkan tombol hapus tepat di bawah tombol ubah status
+kartu.innerHTML = `
+    <h3>${tugas.matkul}</h3>
+    <p>${tugas.detail}</p>
+    <p><strong>Status:</strong> ${tugas.status}</p>
+    <button class="btn-status" onclick="ubahStatus(${tugas.id})">
+        ${tugas.status === 'Selesai' ? 'Buka Lagi' : 'Selesaikan'}
+    </button>
+    
+    <!-- Potongan kode baru untuk tombol hapus merah -->
+    <button onclick="hapusTugas(${tugas.id})" style="background-color: #dc3545; color: white; border: none; padding: 8px 12px; border-radius: 4px; cursor: pointer; margin-top: 10px; font-weight: bold; margin-left: 5px;">
+        Hapus
+    </button>
+`;
+
+                // Masukkan kartu ke dalam grid website
+                wadah.appendChild(kartu);
+            });
+        }
+
+        // Fungsi Interaktif: Mengubah status data saat tombol diklik
+        function ubahStatus(idTugas) {
+            daftarTugas = daftarTugas.map(tugas => {
+                if (tugas.id === idTugas) {
+                    // Balik statusnya
+                    tugas.status = tugas.status === "Belum Selesai" ? "Selesai" : "Belum Selesai";
+                }
+                return tugas;
+            });
+
+            // Gambar ulang tampilannya agar web langsung terupdate otomatis!
+            tampilkanTugas();
+        }
+        // Fungsi baru untuk menghapus data tugas berdasarkan ID-nya
+function hapusTugas(idTugas) {
+    // Memfilter array: ambil semua tugas KECUALI yang ID-nya mau dihapus
+    daftarTugas = daftarTugas.filter(tugas => tugas.id !== idTugas);
+    
+    // Gambar ulang tampilan webnya agar kartu langsung hilang dari layar
+    tampilkanTugas();
+}
+
+        // Jalankan fungsi ini pertama kali saat web dibuka
+        tampilkanTugas();
+    </script>
+</body>
+</html>
